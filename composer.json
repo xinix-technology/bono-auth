@@ -1,0 +1,14 @@
+{
+    "name": "reekoheek/bono-auth",
+    "description": "Bono Auth",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ganesha",
+            "email": "reekoheek@gmail.com"
+        }
+    ],
+    "require": {
+        "slim/slim": "2.3.*"
+    }
+}
