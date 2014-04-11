@@ -14,6 +14,16 @@ class AuthMiddleware extends \Slim\Middleware {
         $response = $app->response;
         $that = $this;
 
+        $defaultOptions = array(
+            'unauthorizedUri' => '/unauthorized'
+        );
+
+        if (is_array($this->options)) {
+            $this->options = array_merge($defaultOptions, $this->options);
+        } else {
+            $this->options = $defaultOptions;
+        }
+
         if (!isset($this->options['class'])) {
             throw new \Exception('No auth driver specified.');
         }
@@ -39,8 +49,8 @@ class AuthMiddleware extends \Slim\Middleware {
 
 
         $app->filter('auth.html.link', function($l) use ($driver) {
-            if ($driver->authorize($l)) {
-                return '<a href="'.\URL::site($l[0]).'">'.$l[1].'</a>';
+            if ($driver->authorize($l['uri'])) {
+                return '<a href="'.\URL::site($l['uri']).'">'.$l['label'].'</a>';
             }
         });
 
@@ -48,11 +58,20 @@ class AuthMiddleware extends \Slim\Middleware {
             return $driver->authorize($l);
         });
 
+        $app->get('/unauthorized', function() use ($app, $response, $driver) {
+            $app->flashNow('error', '<p>Unauthorized!</p>');
+            $response->template('unauthorized');
+        });
+
         $app->get('/login', function() use ($app, $response, $driver) {
             try {
-                $loginUser = $driver->authenticate(null, null);
+                $loginUser = $driver->authenticate();
+
+                if ($loginUser) {
+                    $driver->redirectBack();
+                }
             } catch(\Exception $e) {
-                $app->flashNow('error', $e->getMessage());
+                $app->flashNow('error', ''.$e);
             }
 
             $response->template('login');
@@ -62,11 +81,13 @@ class AuthMiddleware extends \Slim\Middleware {
         $app->post('/login', function() use ($app, $driver) {
             $post = $app->request->post();
 
-            $loginUser = $driver->authenticate($post['username'], $post['password']);
 
-            if ($loginUser) {
-                $_SESSION['user'] = $loginUser;
-            } else {
+            $loginUser = $driver->authenticate(array(
+                'username' => $post['username'],
+                'password' => $post['password']
+            ));
+
+            if (!$loginUser) {
                 $app->flashNow('error', 'Username or password not match.');
             }
 
@@ -74,15 +95,13 @@ class AuthMiddleware extends \Slim\Middleware {
             $app->response->set('entry', $loginUser);
             $app->response->set('response', $app->response);
 
-
         });
 
-        $app->get('/logout', function() use($app, $response) {
-            $app->session->reset();
+        $app->get('/logout', function() use($app, $driver) {
 
-            $app->flash('info', 'Good bye.');
+            // $app->flash('info', 'Good bye.');
 
-            $response->redirect('/login');
+            $driver->revoke();
 
         });
 
@@ -129,13 +148,14 @@ class AuthMiddleware extends \Slim\Middleware {
         switch($app->request->getPathInfo()) {
             case '/login':
             case '/logout':
+            case '/unauthorized':
                 return $this->next->call();
         }
 
         if ($driver->authorize()) {
             return $this->next->call();
         } else {
-            $response->redirect(\URL::create('/login', array(
+            $response->redirect(\URL::create($this->options['unauthorizedUri'], array(
                 'continue' => \URL::current()
             )));
         }

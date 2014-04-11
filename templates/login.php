@@ -1,4 +1,5 @@
 <?php
+// FIXME this logic should be in hook or filter
 // if login then redirect
 if (isset($entry)):
     if (!empty($_GET['continue'])) {

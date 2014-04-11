@@ -13,7 +13,14 @@ abstract class Auth {
         $this->options = $this->middleware->options;
     }
 
-    abstract public function authenticate($username, $password);
+    public function redirectBack() {
+        $continue = @$_GET['continue'] ?: '/';
+        \App::getInstance()->redirect($continue);
+    }
 
-    abstract public function authorize();
+    abstract public function authenticate(array $options = array());
+
+    abstract public function authorize($uri = '');
+
+    abstract public function revoke();
 }

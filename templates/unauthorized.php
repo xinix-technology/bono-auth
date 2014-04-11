@@ -1,0 +1,1 @@
+<a href="<?php echo URL::site('/login') ?>" class="button">Login</a>
