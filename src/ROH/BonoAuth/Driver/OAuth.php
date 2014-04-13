@@ -5,11 +5,13 @@ namespace ROH\BonoAuth\Driver;
 use Guzzle\Service\Client as GuzzleClient;
 use ROH\BonoAuth\RequestWrapper;
 
-class OAuth extends NormAuth {
+class OAuth extends NormAuth
+{
     protected $client = null;
     protected $token = null;
 
-    public function authenticate(array $options = array()) {
+    public function authenticate(array $options = array())
+    {
 
         if (!empty($_GET['error'])) {
             throw new \Exception($_GET['error']);
@@ -41,20 +43,23 @@ class OAuth extends NormAuth {
         }
     }
 
-    public function revoke() {
+    public function revoke()
+    {
         try {
             $this->get('/oauth/revoke')->getBody(true);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
         }
         parent::revoke();
     }
 
-    public function fetchRemoteUser() {
+    public function fetchRemoteUser()
+    {
         $json = $this->get('/user/me')->getJSON();
         return $json['entry'];
     }
 
-    public function authenticateRemoteUser($remoteUser) {
+    public function authenticateRemoteUser($remoteUser)
+    {
         $users = \Norm\Norm::factory('User');
 
         $user = $users->findOne(array('sso_account_id' => $remoteUser['$id']));
@@ -83,7 +88,8 @@ class OAuth extends NormAuth {
 
     }
 
-    public function exchangeCodeForToken($code) {
+    public function exchangeCodeForToken($code)
+    {
         try {
             $params = array(
                 'code' => $code,
@@ -113,7 +119,8 @@ class OAuth extends NormAuth {
         }
     }
 
-    public function getAccessToken() {
+    public function getAccessToken()
+    {
         if (is_null($this->token) && isset($_SESSION['auth.token'])) {
             $this->token = $_SESSION['auth.token'];
         }
@@ -123,26 +130,30 @@ class OAuth extends NormAuth {
         if (isset($this->token['access_token'])) return $this->token['access_token'];
     }
 
-    public function getClient() {
+    public function getClient()
+    {
         if (is_null($this->client)) {
             $this->client = new GuzzleClient();
         }
         return $this->client;
     }
 
-    public function post($uri, $params = null) {
+    public function post($uri, $params = null)
+    {
         $url = \URL::create($uri, null, $this->options['baseUrl']);
 
         return new RequestWrapper($this->getClient()->post($url, $this->getDefaultHeaders(), $params)->send());
     }
 
-    public function get($uri, $params = null) {
+    public function get($uri, $params = null)
+    {
         $url = \URL::create($uri, $params, $this->options['baseUrl']);
 
         return new RequestWrapper($this->getClient()->get($url, $this->getDefaultHeaders())->send());
     }
 
-    public function getDefaultHeaders() {
+    public function getDefaultHeaders()
+    {
         $token = $this->getAccessToken();
 
         $headers = null;
@@ -155,5 +166,4 @@ class OAuth extends NormAuth {
         }
         return $headers;
     }
-
 }

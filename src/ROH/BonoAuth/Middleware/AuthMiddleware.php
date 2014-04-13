@@ -5,10 +5,12 @@ namespace ROH\BonoAuth\Middleware;
 use \Norm\Filter\Filter;
 use \Norm\Filter\FilterException;
 
-class AuthMiddleware extends \Slim\Middleware {
+class AuthMiddleware extends \Slim\Middleware
+{
     protected $driver;
 
-    public function call() {
+    public function call()
+    {
         $app = $this->app;
         $request = $app->request;
         $response = $app->response;
@@ -24,11 +26,14 @@ class AuthMiddleware extends \Slim\Middleware {
             $this->options = $defaultOptions;
         }
 
-        if (!isset($this->options['class'])) {
+        if (isset($this->options['driver'])) {
+            $Clazz = $this->options['driver'];
+        } elseif (isset($this->options['class'])) {
+            $Clazz = $this->options['class'];
+        } else {
             throw new \Exception('No auth driver specified.');
         }
 
-        $Clazz = $this->options['class'];
         $app->auth = $driver = $this->driver = new $Clazz($this);
 
         if (!$driver instanceof \ROH\BonoAuth\Driver\Auth) {
@@ -48,102 +53,123 @@ class AuthMiddleware extends \Slim\Middleware {
         $app->theme->addBaseDirectory($f);
 
 
-        $app->filter('auth.html.link', function($l) use ($driver) {
-            if ($driver->authorize($l['uri'])) {
-                return '<a href="'.\URL::site($l['uri']).'">'.$l['label'].'</a>';
-            }
-        });
-
-        $app->filter('auth.allowed', function($l) use ($driver) {
-            return $driver->authorize($l);
-        });
-
-        $app->get('/unauthorized', function() use ($app, $response, $driver) {
-            $app->flashNow('error', '<p>Unauthorized!</p>');
-            $response->template('unauthorized');
-        });
-
-        $app->get('/login', function() use ($app, $response, $driver) {
-            try {
-                $loginUser = $driver->authenticate();
-
-                if ($loginUser) {
-                    $driver->redirectBack();
+        $app->filter(
+            'auth.html.link',
+            function ($l) use ($driver) {
+                if ($driver->authorize($l['uri'])) {
+                    return '<a href="'.\URL::site($l['uri']).'">'.$l['label'].'</a>';
                 }
-            } catch(\Exception $e) {
-                $app->flashNow('error', ''.$e);
             }
+        );
 
-            $response->template('login');
-        });
-
-
-        $app->post('/login', function() use ($app, $driver) {
-            $post = $app->request->post();
-
-
-            $loginUser = $driver->authenticate(array(
-                'username' => $post['username'],
-                'password' => $post['password']
-            ));
-
-            if (!$loginUser) {
-                $app->flashNow('error', 'Username or password not match.');
+        $app->filter(
+            'auth.allowed',
+            function ($l) use ($driver) {
+                return $driver->authorize($l);
             }
+        );
 
-            $app->response->template('login');
-            $app->response->set('entry', $loginUser);
-            $app->response->set('response', $app->response);
+        $app->get(
+            '/unauthorized',
+            function () use ($app, $response, $driver) {
+                $app->flashNow('error', '<p>Unauthorized!</p>');
+                $response->template('unauthorized');
+            }
+        );
 
-        });
+        $app->get(
+            '/login',
+            function () use ($app, $response, $driver) {
+                try {
+                    $loginUser = $driver->authenticate();
 
-        $app->get('/logout', function() use($app, $driver) {
+                    if ($loginUser) {
+                        $driver->redirectBack();
+                    }
+                } catch (\Exception $e) {
+                    $app->flashNow('error', ''.$e);
+                }
 
-            // $app->flash('info', 'Good bye.');
+                $response->template('login');
+            }
+        );
 
-            $driver->revoke();
 
-        });
+        $app->post(
+            '/login',
+            function () use ($app, $driver) {
+                $post = $app->request->post();
 
-        $app->get('/passwd', function() use ($app) {
-            $app->response->template('passwd');
-        });
 
-        $app->post('/passwd', function() use ($app) {
-            Filter::register('checkPassword', function($key, $value) {
-                if ($_SESSION['user']['password'] === $value) {
-                    return $value;
+                $loginUser = $driver->authenticate(array(
+                    'username' => $post['username'],
+                    'password' => $post['password']
+                ));
+
+                if (!$loginUser) {
+                    $app->flashNow('error', 'Username or password not match.');
+                }
+
+                $app->response->template('login');
+                $app->response->set('entry', $loginUser);
+                $app->response->set('response', $app->response);
+
+            }
+        );
+
+        $app->get(
+            '/logout',
+            function () use($app, $driver) {
+                // $app->flash('info', 'Good bye.');
+                $driver->revoke();
+            }
+        );
+
+        $app->get(
+            '/passwd',
+            function () use ($app) {
+                $app->response->template('passwd');
+            }
+        );
+
+        $app->post(
+            '/passwd',
+            function () use ($app) {
+                Filter::register('checkPassword', function ($key, $value) {
+                    if ($_SESSION['user']['password'] === $value) {
+                        return $value;
+                    } else {
+                        throw FilterException::factory('Old password not valid')->name($key);
+                    }
+                });
+
+                $filter = Filter::create(array(
+                    'old' => 'trim|required|salt|checkPassword',
+                    'new' => 'trim|required|confirmed|salt',
+                ));
+
+                $app->response->template('passwd');
+
+                $data = $filter->run($app->request->post());
+                $errors = $filter->errors();
+                if ($errors) {
+                    $err = new \Norm\Filter\FilterException();
+                    $err->sub($errors);
+                    $app->flashNow('error', ''.$err);
                 } else {
-                    throw FilterException::factory('Old password not valid')->name($key);
+                    $user = \Norm::factory('User')->findOne($_SESSION['user']['$id']);
+
+                    $user['password'] = $data['new_confirmation'];
+                    $user['password_confirmation'] = $data['new_confirmation'];
+                    $user->save();
+
+                    $_SESSION['user'] = $user->toArray();
                 }
-            });
 
-            $filter = Filter::create(array(
-                'old' => 'trim|required|salt|checkPassword',
-                'new' => 'trim|required|confirmed|salt',
-            ));
+                $app->response->set('entry', $data);
 
-            $app->response->template('passwd');
-
-            $data = $filter->run($app->request->post());
-            $errors = $filter->errors();
-            if ($errors) {
-                $err = new \Norm\Filter\FilterException();
-                $err->sub($errors);
-                $app->flashNow('error', ''.$err);
-            } else {
-                $user = \Norm::factory('User')->findOne($_SESSION['user']['$id']);
-
-                $user['password'] = $data['new_confirmation'];
-                $user['password_confirmation'] = $data['new_confirmation'];
-                $user->save();
-
-                $_SESSION['user'] = $user->toArray();
             }
-
-            $app->response->set('entry', $data);
-
-        });
+        );
 
         switch($app->request->getPathInfo()) {
             case '/login':
@@ -161,5 +187,4 @@ class AuthMiddleware extends \Slim\Middleware {
         }
 
     }
-
 }

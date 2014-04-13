@@ -2,8 +2,10 @@
 
 namespace ROH\BonoAuth\Driver;
 
-class NormAuth extends Auth {
-    public function authenticate(array $options = array()) {
+class NormAuth extends Auth
+{
+    public function authenticate(array $options = array())
+    {
 
 
         if (!isset($options['username']) && !isset($options['password'])) {
@@ -28,13 +30,15 @@ class NormAuth extends Auth {
 
     }
 
-    public function authorize($uri = '') {
+    public function authorize($uri = '')
+    {
         if (!empty($_SESSION['user'])) {
             return true;
         }
     }
 
-    public function revoke() {
+    public function revoke()
+    {
         $app = \App::getInstance();
 
         $app->session->reset();

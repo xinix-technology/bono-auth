@@ -2,18 +2,21 @@
 
 namespace ROH\BonoAUth\Driver;
 
-abstract class Auth {
+abstract class Auth
+{
 
     protected $middleware;
 
     protected $options;
 
-    public function __construct($middleware) {
+    public function __construct($middleware)
+    {
         $this->middleware = $middleware;
         $this->options = $this->middleware->options;
     }
 
-    public function redirectBack() {
+    public function redirectBack()
+    {
         $continue = @$_GET['continue'] ?: '/';
         \App::getInstance()->redirect($continue);
     }
