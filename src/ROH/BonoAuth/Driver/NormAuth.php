@@ -32,6 +32,10 @@ class NormAuth extends Auth
 
     public function authorize($uri = '')
     {
+        if (f('auth.authorize', false)) {
+            return true;
+        }
+
         if (!empty($_SESSION['user'])) {
             return true;
         }

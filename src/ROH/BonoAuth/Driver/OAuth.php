@@ -2,6 +2,7 @@
 
 namespace ROH\BonoAuth\Driver;
 
+use Bono\App;
 use Guzzle\Service\Client as GuzzleClient;
 use ROH\BonoAuth\RequestWrapper;
 
@@ -14,7 +15,10 @@ class OAuth extends NormAuth
     {
 
         if (!empty($_GET['error'])) {
-            throw new \Exception($_GET['error']);
+            var_dump($_GET);
+            // exit;
+            $url = \URL::create($this->options['unauthorizedUri'], \App::getInstance()->request->get());
+            return \App::getInstance()->redirect($url);
         }
 
         if (empty($_GET['code'])) {
@@ -101,6 +105,7 @@ class OAuth extends NormAuth
 
             $request = $this->post($this->options['tokenUrl'], $params);
 
+
             $content = $request->getJSON();
             $content['expires'] = new \DateTime($content['expires']);
 
@@ -112,10 +117,10 @@ class OAuth extends NormAuth
             // $raw_response = explode("\n", $e->getResponse());
             // var_dump($e->getResponse()->getStatusCode());
             // var_dump('bad', $raw_response);
-            return \App::getInstance()->redirect($this->options['unauthorizedUri']);
+            return \App::getInstance()->redirect($this->options['unauthorizedUri'].'?error='.$e->getMessage());
         } catch(\Exception $e) {
             // var_dump('err', $e);
-            return \App::getInstance()->redirect($this->options['unauthorizedUri']);
+            return \App::getInstance()->redirect($this->options['unauthorizedUri'].'?error='.$e->getMessage());
         }
     }
 
@@ -127,13 +132,18 @@ class OAuth extends NormAuth
 
 
         // FIXME if expired go logout or refresh token
-        if (isset($this->token['access_token'])) return $this->token['access_token'];
+        if (isset($this->token['access_token'])) {
+            return $this->token['access_token'];
+        }
     }
 
     public function getClient()
     {
         if (is_null($this->client)) {
             $this->client = new GuzzleClient();
+            if ($this->options['debug']) {
+                $this->client->setSslVerification(false, false);
+            }
         }
         return $this->client;
     }

@@ -4,6 +4,7 @@ namespace ROH\BonoAuth\Middleware;
 
 use \Norm\Filter\Filter;
 use \Norm\Filter\FilterException;
+use ROH\BonoAuth\Exception\AuthException;
 
 class AuthMiddleware extends \Slim\Middleware
 {
@@ -72,7 +73,13 @@ class AuthMiddleware extends \Slim\Middleware
         $app->get(
             '/unauthorized',
             function () use ($app, $response, $driver) {
-                $app->flashNow('error', '<p>Unauthorized!</p>');
+                if (!empty($_GET['error'])) {
+                    h('notification.error', new AuthException($_GET['error']));
+                } else {
+                    h('notification.error', 'Unauthorized!');
+                }
+                // $app->flashNow('error', '<p>Unauthorized!</p>');
+
                 $response->template('unauthorized');
             }
         );
@@ -80,17 +87,21 @@ class AuthMiddleware extends \Slim\Middleware
         $app->get(
             '/login',
             function () use ($app, $response, $driver) {
+                $response->template('login');
+
                 try {
                     $loginUser = $driver->authenticate();
 
                     if ($loginUser) {
                         $driver->redirectBack();
                     }
+                } catch (\Slim\Exception\Stop $e) {
+                    throw $e;
                 } catch (\Exception $e) {
-                    $app->flashNow('error', ''.$e);
+                    h('notification.error', $e);
+                    // $app->flashNow('error', ''.$e);
                 }
 
-                $response->template('login');
             }
         );
 
@@ -98,28 +109,36 @@ class AuthMiddleware extends \Slim\Middleware
         $app->post(
             '/login',
             function () use ($app, $driver) {
+                $app->response->template('login');
+
                 $post = $app->request->post();
 
+                try {
 
-                $loginUser = $driver->authenticate(array(
-                    'username' => $post['username'],
-                    'password' => $post['password']
-                ));
+                    $loginUser = $driver->authenticate(array(
+                        'username' => $post['username'],
+                        'password' => $post['password']
+                    ));
 
-                if (!$loginUser) {
-                    $app->flashNow('error', 'Username or password not match.');
+                    if (!$loginUser) {
+                        h('notification.error', l('Username or password not match'));
+                        // $app->flashNow('error', 'Username or password not match.');
+                    }
+
+                    $app->response->set('entry', $loginUser);
+                    $app->response->set('response', $app->response);
+                } catch (\Slim\Exception\Stop $e) {
+                    throw $e;
+                } catch (\Exception $e) {
+                    h('notification.error', $e);
                 }
-
-                $app->response->template('login');
-                $app->response->set('entry', $loginUser);
-                $app->response->set('response', $app->response);
 
             }
         );
 
         $app->get(
             '/logout',
-            function () use($app, $driver) {
+            function () use ($app, $driver) {
                 // $app->flash('info', 'Good bye.');
                 $driver->revoke();
             }
@@ -150,13 +169,9 @@ class AuthMiddleware extends \Slim\Middleware
 
                 $app->response->template('passwd');
 
-                $data = $filter->run($app->request->post());
-                $errors = $filter->errors();
-                if ($errors) {
-                    $err = new \Norm\Filter\FilterException();
-                    $err->sub($errors);
-                    $app->flashNow('error', ''.$err);
-                } else {
+                try {
+                    $data = $filter->run($app->request->post());
+
                     $user = \Norm::factory('User')->findOne($_SESSION['user']['$id']);
 
                     $user['password'] = $data['new_confirmation'];
@@ -164,6 +179,8 @@ class AuthMiddleware extends \Slim\Middleware
                     $user->save();
 
                     $_SESSION['user'] = $user->toArray();
+                } catch (\Exception $e) {
+                    h('notification.error', $e);
                 }
 
                 $app->response->set('entry', $data);
