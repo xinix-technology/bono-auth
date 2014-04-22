@@ -15,8 +15,6 @@ class OAuth extends NormAuth
     {
 
         if (!empty($_GET['error'])) {
-            var_dump($_GET);
-            // exit;
             $url = \URL::create($this->options['unauthorizedUri'], \App::getInstance()->request->get());
             return \App::getInstance()->redirect($url);
         }
