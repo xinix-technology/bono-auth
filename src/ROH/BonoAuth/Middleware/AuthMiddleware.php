@@ -80,6 +80,7 @@ class AuthMiddleware extends \Slim\Middleware
                 }
                 // $app->flashNow('error', '<p>Unauthorized!</p>');
 
+                $response->setStatus(401);
                 $response->template('unauthorized');
             }
         );
