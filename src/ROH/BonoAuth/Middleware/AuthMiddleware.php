@@ -12,6 +12,10 @@ class AuthMiddleware extends \Slim\Middleware
 
     public function call()
     {
+        if ($this->app->config('bono.cli')) {
+            return $this->next->call();
+        }
+
         $app = $this->app;
         $request = $app->request;
         $response = $app->response;
