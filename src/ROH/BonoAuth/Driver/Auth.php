@@ -15,10 +15,15 @@ abstract class Auth
         $this->options = $this->middleware->options;
     }
 
+    public function getRedirectUri()
+    {
+        $app = \App::getInstance();
+        return $app->request->get('continue') ?: '/';
+    }
+
     public function redirectBack()
     {
-        $continue = @$_GET['continue'] ?: '/';
-        \App::getInstance()->redirect($continue);
+        \App::getInstance()->redirect($this->getRedirectUri());
     }
 
     abstract public function authenticate(array $options = array());
