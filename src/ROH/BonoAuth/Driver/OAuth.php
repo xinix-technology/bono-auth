@@ -13,7 +13,6 @@ class OAuth extends NormAuth
 
     public function authenticate(array $options = array())
     {
-
         if (!empty($_GET['error'])) {
             $url = \URL::create($this->options['unauthorizedUri'], \App::getInstance()->request->get());
             return \App::getInstance()->redirect($url);
@@ -66,6 +65,7 @@ class OAuth extends NormAuth
 
         $user = $users->findOne(array('sso_account_id' => $remoteUser['$id']));
 
+
         if (is_null($user)) {
 
             // try {
@@ -103,22 +103,24 @@ class OAuth extends NormAuth
 
             $request = $this->post($this->options['tokenUrl'], $params);
 
-
             $content = $request->getJSON();
+
             $content['expires'] = new \DateTime($content['expires']);
 
             $_SESSION['auth.token'] = $this->token = $content;
 
+
             return $content;
         } catch (\Guzzle\Http\Exception\BadResponseException $e) {
-
-            // $raw_response = explode("\n", $e->getResponse());
-            // var_dump($e->getResponse()->getStatusCode());
-            // var_dump('bad', $raw_response);
-            return \App::getInstance()->redirect($this->options['unauthorizedUri'].'?error='.$e->getMessage());
+            return \App::getInstance()->redirect(
+                $this->options['unauthorizedUri'].'?error='.
+                preg_replace('/\s+/', ' ', $e->getMessage())
+            );
         } catch(\Exception $e) {
-            // var_dump('err', $e);
-            return \App::getInstance()->redirect($this->options['unauthorizedUri'].'?error='.$e->getMessage());
+            return \App::getInstance()->redirect(
+                $this->options['unauthorizedUri'].'?error='.
+                preg_replace('/\s+/', ' ', $e->getMessage())
+            );
         }
     }
 
@@ -149,7 +151,6 @@ class OAuth extends NormAuth
     public function post($uri, $params = null)
     {
         $url = \URL::create($uri, null, $this->options['baseUrl']);
-
         return new RequestWrapper($this->getClient()->post($url, $this->getDefaultHeaders(), $params)->send());
     }
 

@@ -52,6 +52,7 @@ class AuthMiddleware extends \Slim\Middleware
             throw new \Exception('Authentication need \\Bono\\Middleware\\SessionMiddleware.');
         }
 
+
         // theme may get templates from bono-auth
         $f = explode('/src/', __FILE__);
         $f = $f[0];
@@ -204,7 +205,7 @@ class AuthMiddleware extends \Slim\Middleware
             return $this->next->call();
         } else {
             $response->redirect(\URL::create($this->options['unauthorizedUri'], array(
-                'continue' => \URL::current()
+                'continue' => $driver->getRedirectUri(),
             )));
         }
 

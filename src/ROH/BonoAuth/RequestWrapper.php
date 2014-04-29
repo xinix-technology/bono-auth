@@ -2,18 +2,22 @@
 
 namespace ROH\BonoAuth;
 
-class RequestWrapper {
+class RequestWrapper
+{
     protected $request;
 
-    public function __construct($request) {
+    public function __construct($request)
+    {
         $this->request = $request;
     }
 
-    public function __call($method, $parameters) {
+    public function __call($method, $parameters)
+    {
         return call_user_func_array(array($this->request, $method), $parameters);
     }
 
-    public function getJSON() {
+    public function getJSON()
+    {
         return json_decode($this->request->getBody(true), true);
     }
 }
