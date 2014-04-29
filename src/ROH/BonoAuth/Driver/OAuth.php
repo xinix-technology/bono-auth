@@ -65,7 +65,6 @@ class OAuth extends NormAuth
 
         $user = $users->findOne(array('sso_account_id' => $remoteUser['$id']));
 
-
         if (is_null($user)) {
 
             // try {
