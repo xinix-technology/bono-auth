@@ -205,7 +205,7 @@ class AuthMiddleware extends \Slim\Middleware
             return $this->next->call();
         } else {
             $response->redirect(\URL::create($this->options['unauthorizedUri'], array(
-                'continue' => $driver->getRedirectUri(),
+                '!continue' => $driver->getRedirectUri(),
             )));
         }
 

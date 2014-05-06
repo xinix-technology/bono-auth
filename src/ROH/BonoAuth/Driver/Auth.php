@@ -2,6 +2,8 @@
 
 namespace ROH\BonoAUth\Driver;
 
+use \Bono\Helper\URL;
+
 abstract class Auth
 {
 
@@ -17,8 +19,7 @@ abstract class Auth
 
     public function getRedirectUri()
     {
-        $app = \App::getInstance();
-        return $app->request->get('continue') ?: '/';
+        return URL::redirect();
     }
 
     public function redirectBack()

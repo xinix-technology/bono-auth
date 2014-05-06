@@ -1,1 +1,1 @@
-<a href="<?php echo URL::site('/login').(!empty($_GET['continue']) ? '?continue='.$_GET['continue'] : '') ?>" class="button">Login</a>
+<a href="<?php echo URL::site('/login').'?!continue='.\Bono\Helper\URL::redirect() ?>" class="button">Login</a>

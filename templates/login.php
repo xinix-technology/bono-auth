@@ -1,13 +1,10 @@
 <?php
+use \Bono\Helper\URL;
+
 // FIXME this logic should be in hook or filter
 // if login then redirect
 if (isset($entry)):
-    if (!empty($_GET['continue'])) {
-        $continue = $_GET['continue'];
-    } else {
-        $continue = '/';
-    }
-    $response->redirect($continue);
+    $response->redirect(URL::redirect());
 endif
 ?>
 
