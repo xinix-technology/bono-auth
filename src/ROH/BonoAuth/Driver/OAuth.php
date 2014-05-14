@@ -63,27 +63,20 @@ class OAuth extends NormAuth
     {
         $users = \Norm\Norm::factory('User');
 
-        $user = $users->findOne(array('sso_account_id' => $remoteUser['$id']));
+        $user = $users->findOne(array('username' => $remoteUser['username']));
 
         if (is_null($user)) {
-
-            // try {
-
             $user = $users->newInstance();
             $user['username'] = $remoteUser['username'];
             $user['first_name'] = $remoteUser['first_name'];
             $user['last_name'] = $remoteUser['last_name'];
-            $user['email'] = $remoteUser['email'];
             $user['birth_date'] = $remoteUser['birth_date'];
             $user['birth_place'] = $remoteUser['birth_place'];
-            $user['sso_account_id'] = $remoteUser['$id'];
-            $user->save();
-
-            // } catch(\Exception $e) {
-
-            // }
-
         }
+
+        $user['email'] = $remoteUser['email'];
+        $user['sso_account_id'] = $remoteUser['$id'];
+        $user->save();
 
         return $user->toArray();
 
@@ -128,7 +121,6 @@ class OAuth extends NormAuth
         if (is_null($this->token) && isset($_SESSION['auth.token'])) {
             $this->token = $_SESSION['auth.token'];
         }
-
 
         // FIXME if expired go logout or refresh token
         if (isset($this->token['access_token'])) {

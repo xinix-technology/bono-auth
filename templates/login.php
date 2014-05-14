@@ -1,13 +1,3 @@
-<?php
-use \Bono\Helper\URL;
-
-// FIXME this logic should be in hook or filter
-// if login then redirect
-if (isset($entry)):
-    $response->redirect(URL::redirect());
-endif
-?>
-
 <form action="" method="POST">
     <div class="row field field-username">
         <label>Username</label>
@@ -17,6 +7,7 @@ endif
         <label>Password</label>
         <input type="password" name="password">
     </div>
+    <input type="hidden" name="keep" value="1">
     <div class="row">
         <input type="submit" value="Login">
     </div>

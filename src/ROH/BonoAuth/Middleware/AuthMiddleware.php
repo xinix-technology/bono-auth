@@ -118,24 +118,19 @@ class AuthMiddleware extends \Slim\Middleware
                 $app->response->template('login');
 
                 $post = $app->request->post();
-
                 try {
 
-                    $loginUser = $driver->authenticate(array(
-                        'username' => $post['username'],
-                        'password' => $post['password']
-                    ));
+                    $loginUser = $driver->authenticate($post);
 
-                    if (!$loginUser) {
-                        h('notification.error', l('Username or password not match'));
-                        // $app->flashNow('error', 'Username or password not match.');
+                    if (is_null($loginUser)) {
+                        throw new \Exception('Username or password not match');
                     }
 
                     $app->response->set('entry', $loginUser);
-                    $app->response->set('response', $app->response);
                 } catch (\Slim\Exception\Stop $e) {
                     throw $e;
                 } catch (\Exception $e) {
+                    $app->response->setStatus(401);
                     h('notification.error', $e);
                 }
 

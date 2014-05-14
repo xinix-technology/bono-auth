@@ -6,7 +6,7 @@ class NormAuth extends Auth
 {
     public function authenticate(array $options = array())
     {
-
+        $app = \App::getInstance();
 
         if (!isset($options['username']) && !isset($options['password'])) {
             return null;
@@ -24,7 +24,17 @@ class NormAuth extends Auth
             return null;
         }
 
+        if (empty($options['keep'])) {
+            $app->session->reset();
+        } else {
+            $app->session->reset(array(
+                'lifetime' => 365 * 24 * 60 * 60
+            ));
+        }
+
         $_SESSION['user'] = $user;
+
+        $app->redirect(\URL::redirect());
 
         return $user->toArray();
 
