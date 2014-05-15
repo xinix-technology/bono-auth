@@ -196,7 +196,7 @@ class AuthMiddleware extends \Slim\Middleware
                 return $this->next->call();
         }
 
-        if ($driver->authorize()) {
+        if ($driver->authorize($app->request->getPathInfo())) {
             return $this->next->call();
         } else {
             $response->redirect(\URL::create($this->options['unauthorizedUri'], array(

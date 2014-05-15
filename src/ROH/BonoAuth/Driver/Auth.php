@@ -29,7 +29,7 @@ abstract class Auth
 
     abstract public function authenticate(array $options = array());
 
-    abstract public function authorize($uri = '');
+    abstract public function authorize($options = '');
 
     abstract public function revoke();
 }
