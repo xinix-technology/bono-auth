@@ -159,7 +159,7 @@ class AuthMiddleware extends \Slim\Middleware
                     if ($_SESSION['user']['password'] === $value) {
                         return $value;
                     } else {
-                        throw FilterException::factory('Old password not valid')->name($key);
+                        throw FilterException::factory($key, 'Old password not valid')->args($key);
                     }
                 });
 
@@ -170,8 +170,9 @@ class AuthMiddleware extends \Slim\Middleware
 
                 $app->response->template('passwd');
 
+                $data = array($app->request->post());
                 try {
-                    $data = $filter->run($app->request->post());
+                    $data = $filter->run($data);
 
                     $user = \Norm::factory('User')->findOne($_SESSION['user']['$id']);
 

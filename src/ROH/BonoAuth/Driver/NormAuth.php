@@ -43,14 +43,15 @@ class NormAuth extends Auth
     public function authorize($options = '')
     {
         if (empty($options)) {
-
             $options = array(
                 'uri' => \App::getInstance()->request->getPathInfo(),
             );
         }
+
         if (is_string($options)) {
             $options = array('uri' => $options);
         }
+
         $authorized = f('auth.authorize', $options);
         if (is_bool($authorized)) {
             return $authorized;
