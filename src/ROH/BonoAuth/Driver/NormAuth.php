@@ -14,7 +14,12 @@ class NormAuth extends Auth
 
         $users = \Norm\Norm::factory(@$this->options['userCollection'] ?: 'User');
 
-        $user = $users->findOne(array('username' => $options['username']));
+        $user = $users->findOne(array(
+            '!or' => array(
+                array('username' => $options['username']),
+                array('email' => $options['username']),
+            ),
+        ));
 
         if (function_exists('salt')) {
             $options['password'] = salt($options['password']);
