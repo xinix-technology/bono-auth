@@ -17,6 +17,15 @@ abstract class Auth
         $this->options = $this->middleware->options;
     }
 
+    public function option($key = null)
+    {
+        if (is_null($key)) {
+            return $this->options;
+        } elseif (isset($this->options[$key])) {
+            return $this->options[$key];
+        }
+    }
+
     public function getRedirectUri()
     {
         return URL::redirect();
