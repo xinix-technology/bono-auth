@@ -110,6 +110,10 @@ class AuthMiddleware extends \Slim\Middleware
                     throw new \Exception('Username or password not match');
                 }
 
+                if (f('auth.login.success', $loginUser)) {
+                    $driver->redirectBack();
+                }
+
                 $app->response->set('entry', $loginUser);
             } catch (\Slim\Exception\Stop $e) {
                 throw $e;
@@ -130,11 +134,11 @@ class AuthMiddleware extends \Slim\Middleware
         });
 
         $app->post('/passwd', function () use ($app) {
-            Filter::register('checkPassword', function ($key, $value) {
+            Filter::register('checkPassword', function ($value, $data) {
                 if ($_SESSION['user']['password'] === $value) {
                     return $value;
                 } else {
-                    throw FilterException::factory($key, 'Old password not valid')->args($key);
+                    throw new \Exception('Old password not valid');
                 }
             });
 
@@ -157,7 +161,10 @@ class AuthMiddleware extends \Slim\Middleware
 
                 $_SESSION['user'] = $user->toArray();
 
-                h('notification.info', 'Your password is changed.');
+                if (f('auth.passwd.success', $user)) {
+                    h('notification.info', 'Your password is changed.');
+                }
+            } catch (\Slim\Exception\Stop $e) {
 
             } catch (\Exception $e) {
                 h('notification.error', $e);

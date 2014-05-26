@@ -37,10 +37,7 @@ class NormAuth extends Auth
             ));
         }
 
-
         $_SESSION['user'] = $user->toArray();
-
-        $app->redirect(\URL::redirect());
 
         return $user->toArray();
 
