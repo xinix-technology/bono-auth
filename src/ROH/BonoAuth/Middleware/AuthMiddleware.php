@@ -125,7 +125,7 @@ class AuthMiddleware extends \Slim\Middleware
         });
 
         $app->get('/logout', function () use ($app, $driver) {
-            // $app->flash('info', 'Good bye.');
+            h('notification.info', 'Good bye.');
             $driver->revoke();
         });
 
