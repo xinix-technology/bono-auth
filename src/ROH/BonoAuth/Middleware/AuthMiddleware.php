@@ -135,7 +135,7 @@ class AuthMiddleware extends \Slim\Middleware
 
         $app->post('/passwd', function () use ($app) {
             Filter::register('checkPassword', function ($value, $data) {
-                if ($_SESSION['user']['password'] === $value) {
+                if ($_SESSION['user']['password'].'' === $value) {
                     return $value;
                 } else {
                     throw new \Exception('Old password not valid');
@@ -192,12 +192,7 @@ class AuthMiddleware extends \Slim\Middleware
             return $options;
         }, 0);
 
-
-        // $driver->authorize($app->request->getPathInfo());
-        // exit;
-
-
-        if ($driver->authorize($app->request->getPathInfo())) {
+        if ($driver->authorize($app->request->getResourceUri())) {
             return $this->next->call();
         } else {
             $response->redirect(\URL::create($this->options['unauthorizedUri'], array(

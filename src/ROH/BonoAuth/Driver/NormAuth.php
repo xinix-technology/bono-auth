@@ -25,7 +25,7 @@ class NormAuth extends Auth
             $options['password'] = salt($options['password']);
         }
 
-        if (is_null($user) || $user['password'] !== $options['password']) {
+        if (is_null($user) || $user['password'].'' !== $options['password']) {
             return null;
         }
 
