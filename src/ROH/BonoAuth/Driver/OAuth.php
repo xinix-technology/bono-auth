@@ -55,7 +55,7 @@ class OAuth extends NormAuth
 
     public function fetchRemoteUser()
     {
-        $json = $this->get('/user/me')->getJSON();
+        $json = $this->get('/home/user/me')->getJSON();
         return $json['entry'];
     }
 
