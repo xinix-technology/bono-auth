@@ -15,7 +15,7 @@ class AuthException extends \Exception
     {
 
         $this->messageCode = $message;
-        $message = @static::$MESSAGE_CODES[$message] ?: 'Unknown error (' . $message .')';
+        $message = @static::$MESSAGE_CODES[$message] ?: $message;
         parent::__construct($message);
     }
 }

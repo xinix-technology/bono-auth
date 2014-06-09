@@ -13,34 +13,40 @@ class OAuth extends NormAuth
 
     public function authenticate(array $options = array())
     {
-        if (!empty($_GET['error'])) {
-            $url = \URL::create($this->options['unauthorizedUri'], \App::getInstance()->request->get());
+        try {
+            if (!empty($_GET['error'])) {
+                throw new \Exception($_GET['error']);
+            }
+
+            if (empty($_GET['code'])) {
+                $url = \URL::create($this->options['authUrl'], array(
+                    'response_type' => 'code',
+                    'client_id' => $this->options['clientId'],
+                    'redirect_uri' => $this->options['redirectUri'],
+                    'scope' => @$this->options['scope'],
+                    'state' => '',
+                    // 'access_type' => 'online',
+                    // 'approval_prompt' => 'auto',
+                    // 'login_hint' => '',
+                    // 'include_granted_scopes' => true
+                ), $this->options['baseUrl']);
+                return \App::getInstance()->redirect($url);
+            } else {
+                $this->exchangeCodeForToken($_GET['code']);
+
+                $me = $this->fetchRemoteUser();
+
+                $user = $this->authenticateRemoteUser($me);
+
+                $_SESSION['user'] = $user;
+
+                return $user;
+            }
+        } catch (\Slim\Exception\Stop $e) {
+            return;
+        } catch (\Exception $e) {
+            $url = \URL::create($this->options['unauthorizedUri'], array('error' => $e->getMessage()));
             return \App::getInstance()->redirect($url);
-        }
-
-        if (empty($_GET['code'])) {
-            $url = \URL::create($this->options['authUrl'], array(
-                'response_type' => 'code',
-                'client_id' => $this->options['clientId'],
-                'redirect_uri' => $this->options['redirectUri'],
-                'scope' => @$this->options['scope'],
-                'state' => '',
-                // 'access_type' => 'online',
-                // 'approval_prompt' => 'auto',
-                // 'login_hint' => '',
-                // 'include_granted_scopes' => true
-            ), $this->options['baseUrl']);
-            return \App::getInstance()->redirect($url);
-        } else {
-            $this->exchangeCodeForToken($_GET['code']);
-
-            $me = $this->fetchRemoteUser();
-
-            $user = $this->authenticateRemoteUser($me);
-
-            $_SESSION['user'] = $user;
-
-            return $user;
         }
     }
 
@@ -61,22 +67,30 @@ class OAuth extends NormAuth
 
     public function authenticateRemoteUser($remoteUser)
     {
-        $users = \Norm\Norm::factory('User');
+        $app = \App::getInstance();
 
-        $user = $users->findOne(array('username' => $remoteUser['username']));
+        $authorized = f('auth.remoteAuthorize', $remoteUser);
 
-        if (is_null($user)) {
-            $user = $users->newInstance();
-            $user['username'] = $remoteUser['username'];
-            $user['first_name'] = $remoteUser['first_name'];
-            $user['last_name'] = $remoteUser['last_name'];
-            $user['birth_date'] = $remoteUser['birth_date'];
-            $user['birth_place'] = $remoteUser['birth_place'];
+        if ($authorized) {
+            $users = \Norm\Norm::factory('User');
+
+            $user = $users->findOne(array('username' => $remoteUser['username']));
+
+            if (is_null($user)) {
+                $user = $users->newInstance();
+                $user['username'] = $remoteUser['username'];
+                $user['first_name'] = $remoteUser['first_name'];
+                $user['last_name'] = $remoteUser['last_name'];
+                $user['birth_date'] = $remoteUser['birth_date'];
+                $user['birth_place'] = $remoteUser['birth_place'];
+            }
+
+            $user['email'] = $remoteUser['email'];
+            $user['sso_account_id'] = $remoteUser['$id'];
+            $user->save();
+        } else {
+            throw new \Exception('You are unauthorized to access this application. Please contact administrator.');
         }
-
-        $user['email'] = $remoteUser['email'];
-        $user['sso_account_id'] = $remoteUser['$id'];
-        $user->save();
 
         return $user->toArray();
 
