@@ -9,6 +9,7 @@ use ROH\BonoAuth\RequestWrapper;
 class OAuth extends NormAuth
 {
     protected $client = null;
+
     protected $token = null;
 
     public function authenticate(array $options = array())
