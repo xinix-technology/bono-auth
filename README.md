@@ -54,7 +54,7 @@ accessed. And after user get login, he will be able to access every pages availa
 
 To authorize/deauthorize specific pages, you have to write codes to register filter "auth.authorize" that run before the middleware invoked by system. Usually you can put this codes in provider file. The codes will be in this following form:
 
-```
+```php
 $app->filter('auth.authorize', function ($options) {
   // something to do
   return $allowed;
@@ -73,7 +73,7 @@ The filter will accept single argument $options. As the nature of Bono Filter, t
 
 If the $options is_bool, it means one of previous filter functions already handle the URI, you can skip the current filter function by adding if-statement.
 
-```
+```php
 $app->filter('auth.authorize', function ($options) {
   if (is_bool($options)) {
     return $options;
