@@ -14,6 +14,8 @@ class OAuth extends NormAuth
 
     public function authenticate(array $options = array())
     {
+        $app = App::getInstance();
+
         try {
             if (!empty($_GET['error'])) {
                 throw new \Exception($_GET['error']);
@@ -33,11 +35,20 @@ class OAuth extends NormAuth
                 ), $this->options['baseUrl']);
                 return \App::getInstance()->redirect($url);
             } else {
+                if (empty($_GET['keep'])) {
+                    $app->session->reset();
+                } else {
+                    $app->session->reset(array(
+                        'lifetime' => 365 * 24 * 60 * 60
+                    ));
+                }
+
                 $this->exchangeCodeForToken($_GET['code']);
 
                 $me = $this->fetchRemoteUser();
 
                 $user = $this->authenticateRemoteUser($me);
+
 
                 $_SESSION['user'] = $user;
 
@@ -62,7 +73,9 @@ class OAuth extends NormAuth
 
     public function fetchRemoteUser()
     {
-        $json = $this->get('/home/user/me')->getJSON();
+
+        $userUrl = (empty($this->options['userUrl'])) ? '/home/user/me' : $this->options['userUrl'];
+        $json = $this->get($userUrl)->getJSON();
         return $json['entry'];
     }
 
@@ -115,7 +128,6 @@ class OAuth extends NormAuth
             $content['expires'] = new \DateTime($content['expires']);
 
             $_SESSION['auth.token'] = $this->token = $content;
-
 
             return $content;
         } catch (\Guzzle\Http\Exception\BadResponseException $e) {

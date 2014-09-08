@@ -12,9 +12,9 @@ class NormAuth extends Auth
             return null;
         }
 
-        $users = \Norm\Norm::factory(@$this->options['userCollection'] ?: 'User');
+        $userCollection = \Norm\Norm::factory(@$this->options['userCollection'] ?: 'User');
 
-        $user = $users->findOne(array(
+        $user = $userCollection->findOne(array(
             '!or' => array(
                 array('username' => $options['username']),
                 array('email' => $options['username']),
