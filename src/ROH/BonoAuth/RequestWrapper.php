@@ -20,4 +20,9 @@ class RequestWrapper
     {
         return json_decode($this->request->getBody(true), true);
     }
+
+    public function getString()
+    {
+        return $this->request->getBody(true);
+    }
 }
