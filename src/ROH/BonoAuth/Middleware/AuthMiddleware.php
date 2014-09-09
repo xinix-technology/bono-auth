@@ -101,7 +101,7 @@ class AuthMiddleware extends \Slim\Middleware
         $app->post('/login', function () use ($app, $driver) {
             $app->response->template('login');
 
-            $post = $app->request->post();
+            $entry = $post = $app->request->post();
             try {
 
                 $loginUser = $driver->authenticate($post);
@@ -114,13 +114,15 @@ class AuthMiddleware extends \Slim\Middleware
                     $driver->redirectBack();
                 }
 
-                $app->response->set('entry', $loginUser);
+                $entry = $loginUser;
             } catch (\Slim\Exception\Stop $e) {
                 throw $e;
             } catch (\Exception $e) {
                 $app->response->setStatus(401);
                 h('notification.error', $e);
             }
+
+            $app->response->set('entry', $entry);
 
         });
 

@@ -16,7 +16,7 @@ class NormAuth extends Auth
 
         $user = $userCollection->findOne(array(
             '!or' => array(
-                array('username' => $options['username']),
+                array('normalized_username' => str_replace('.', '', $options['username'])),
                 array('email' => $options['username']),
             ),
         ));
