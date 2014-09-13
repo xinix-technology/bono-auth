@@ -176,6 +176,9 @@ class AuthMiddleware extends \Slim\Middleware
 
         });
 
+        $app->filter('auth.isAuthorized', function ($options) use ($app) {
+            return $app->auth->authorize($options);
+        });
 
         $app->filter('auth.authorize', function ($options) use ($app) {
             if (is_array($options) && isset($options['uri'])) {
