@@ -57,7 +57,12 @@ class OAuth extends NormAuth
         } catch (\Slim\Exception\Stop $e) {
             return;
         } catch (\Exception $e) {
-            $url = \URL::create($this->options['unauthorizedUri'], array('error' => $e->getMessage()));
+            if ($e instanceof \Norm\Filter\FilterException) {
+                $error = 'Caught filter error! Please contact Administrator';
+            } else {
+                $error = $e->getMessage();
+            }
+            $url = \URL::create($this->options['unauthorizedUri'], array('error' => $error));
             return \App::getInstance()->redirect($url);
         }
     }
