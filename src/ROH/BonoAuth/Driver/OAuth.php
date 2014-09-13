@@ -100,6 +100,7 @@ class OAuth extends NormAuth
             }
 
             if (!empty($remoteUser['normalized_username'])) {
+
                 $user['normalized_username'] = $remoteUser['normalized_username'];
             }
             $user['email'] = $remoteUser['email'];
