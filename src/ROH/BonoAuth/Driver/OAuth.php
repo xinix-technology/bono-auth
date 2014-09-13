@@ -99,7 +99,9 @@ class OAuth extends NormAuth
                 $user['birth_place'] = $remoteUser['birth_place'];
             }
 
-            $user['normalized_username'] = $remoteUser['normalized_username'];
+            if (!empty($remoteUser['normalized_username'])) {
+                $user['normalized_username'] = $remoteUser['normalized_username'];
+            }
             $user['email'] = $remoteUser['email'];
             $user['sso_account_id'] = $remoteUser['$id'];
             $user->save();
