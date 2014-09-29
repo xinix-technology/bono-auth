@@ -168,7 +168,7 @@ class OAuth extends NormAuth
     {
         if (is_null($this->client)) {
             $this->client = new GuzzleClient();
-            if ($this->options['debug']) {
+            if (empty($this->options['debug'])) {
                 $this->client->setSslVerification(false, false);
             }
         }
