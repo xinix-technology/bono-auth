@@ -2,7 +2,7 @@
 
 namespace ROH\BonoAUth\Driver;
 
-use \Bono\Helper\URL;
+use Bono\Helper\URL;
 
 abstract class Auth
 {

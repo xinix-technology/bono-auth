@@ -2,8 +2,8 @@
 
 namespace ROH\BonoAuth\Middleware;
 
-use \Norm\Filter\Filter;
-use \Norm\Filter\FilterException;
+use Norm\Filter\Filter;
+use Norm\Filter\FilterException;
 use ROH\BonoAuth\Exception\AuthException;
 
 class AuthMiddleware extends \Slim\Middleware
@@ -42,12 +42,12 @@ class AuthMiddleware extends \Slim\Middleware
         $app->auth = $driver = $this->driver = new $Clazz($this);
 
         if (!$driver instanceof \ROH\BonoAuth\Driver\Auth) {
-            throw new \Exception('Auth driver should be instance of \\ROH\\BonoAuth\\Driver\\Auth.');
+            throw new \Exception('Auth driver should be instance of ROH\\BonoAuth\\Driver\\Auth.');
         }
 
         // authentication needs SessionMiddleware
-        if (!$app->has('\\Bono\\Middleware\\SessionMiddleware')) {
-            throw new \Exception('Authentication need \\Bono\\Middleware\\SessionMiddleware.');
+        if (!$app->has('Bono\\Middleware\\SessionMiddleware')) {
+            throw new \Exception('Authentication need Bono\\Middleware\\SessionMiddleware.');
         }
 
 
