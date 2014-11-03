@@ -122,7 +122,7 @@ class AuthMiddleware extends \Slim\Middleware
                 h('notification.error', $e);
             }
 
-            $app->response->set('entry', $entry);
+            $app->response->data('entry', $entry);
 
         });
 
@@ -172,7 +172,7 @@ class AuthMiddleware extends \Slim\Middleware
                 h('notification.error', $e);
             }
 
-            $app->response->set('entry', $data);
+            $app->response->data('entry', $data);
 
         });
 
