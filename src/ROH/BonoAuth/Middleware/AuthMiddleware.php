@@ -101,10 +101,9 @@ class AuthMiddleware extends \Slim\Middleware
         $app->post('/login', function () use ($app, $driver) {
             $app->response->template('login');
 
-            $entry = $post = $app->request->post();
+            $entry = $body = $app->request->getBody();
             try {
-
-                $loginUser = $driver->authenticate($post);
+                $loginUser = $driver->authenticate($body);
 
                 if (is_null($loginUser)) {
                     throw new \Exception('Username or password not match');
@@ -167,7 +166,7 @@ class AuthMiddleware extends \Slim\Middleware
                     h('notification.info', 'Your password is changed.');
                 }
             } catch (\Slim\Exception\Stop $e) {
-
+                // noop
             } catch (\Exception $e) {
                 h('notification.error', $e);
             }
@@ -187,7 +186,7 @@ class AuthMiddleware extends \Slim\Middleware
                 $uri = $options;
             }
 
-            switch($uri) {
+            switch ($uri) {
                 case '/login':
                 case '/logout':
                 case '/unauthorized':

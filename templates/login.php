@@ -1,9 +1,9 @@
 <form action="" method="POST">
-    <div class="row field field-username">
+    <div class="field-username">
         <label>Username</label>
         <input type="text" name="username" value="<?php echo @$entry['username'] ?>">
     </div>
-    <div class="row field field-password">
+    <div class="field-password">
         <label>Password</label>
         <input type="password" name="password">
     </div>
