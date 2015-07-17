@@ -5,6 +5,9 @@ namespace ROH\BonoAuth\Driver;
 use Bono\App;
 use Guzzle\Service\Client as GuzzleClient;
 use ROH\BonoAuth\RequestWrapper;
+use Norm\Filter\FilterException;
+use Exception;
+use Slim\Exception\Stop;
 
 class OAuth extends NormAuth
 {
@@ -18,7 +21,7 @@ class OAuth extends NormAuth
 
         try {
             if (!empty($_GET['error'])) {
-                throw new \Exception($_GET['error']);
+                throw new Exception($_GET['error']);
             }
 
             if (empty($_GET['code'])) {
@@ -54,9 +57,9 @@ class OAuth extends NormAuth
 
                 return $user;
             }
-        } catch (\Slim\Exception\Stop $e) {
+        } catch (Stop $e) {
             return;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($e instanceof \Norm\Filter\FilterException) {
                 $error = 'Caught filter error! Please contact Administrator';
             } else {

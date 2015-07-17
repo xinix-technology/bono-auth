@@ -3,7 +3,6 @@
 namespace ROH\BonoAuth\Middleware;
 
 use Norm\Filter\Filter;
-use Norm\Filter\FilterException;
 use ROH\BonoAuth\Exception\AuthException;
 
 class AuthMiddleware extends \Slim\Middleware
@@ -67,6 +66,8 @@ class AuthMiddleware extends \Slim\Middleware
             return $driver->authorize($l);
         });
 
+        // TODO revisit notification.error write should be trapped from
+        // notificationmiddleware automatically
         $app->get('/unauthorized', function () use ($app, $response, $driver) {
             if (!empty($_GET['error'])) {
                 h('notification.error', new AuthException($_GET['error']));
@@ -199,9 +200,12 @@ class AuthMiddleware extends \Slim\Middleware
         if ($driver->authorize($app->request->getResourceUri())) {
             return $this->next->call();
         } else {
-            $response->redirect(\URL::create($this->options['unauthorizedUri'], array(
-                '!continue' => $driver->getRedirectUri(),
-            )));
+            $response->setStatus(401);
+            $response->template('unauthorized');
+
+            // $response->redirect(\URL::create($this->options['unauthorizedUri'], array(
+            //     '!continue' => $driver->getRedirectUri(),
+            // )));
         }
 
     }
