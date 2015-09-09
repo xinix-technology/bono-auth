@@ -1,6 +1,6 @@
 <?php
 
-namespace ROH\BonoAuth\Observer;
+namespace Xinix\BonoAuth\Observer;
 
 class NormalizeUsername
 {

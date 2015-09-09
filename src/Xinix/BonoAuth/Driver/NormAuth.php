@@ -1,6 +1,6 @@
 <?php
 
-namespace ROH\BonoAuth\Driver;
+namespace Xinix\BonoAuth\Driver;
 
 class NormAuth extends Auth
 {

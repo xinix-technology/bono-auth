@@ -1,6 +1,6 @@
 <?php
 
-namespace ROH\BonoAuth;
+namespace Xinix\BonoAuth;
 
 class RequestWrapper
 {

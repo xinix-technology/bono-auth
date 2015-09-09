@@ -1,6 +1,6 @@
 <?php
 
-namespace ROH\BonoAuth\Exception;
+namespace Xinix\BonoAuth\Exception;
 
 class AuthException extends \Exception
 {

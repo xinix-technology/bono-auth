@@ -1,5 +1,5 @@
 {
-    "name": "reekoheek/bono-auth",
+    "name": "xinix-technology/bono-auth",
     "description": "Bono Auth",
     "license": "MIT",
     "authors": [
@@ -14,7 +14,7 @@
     },
     "autoload": {
         "psr-0": {
-            "ROH\\BonoAuth": "src/"
+            "Xinix\\BonoAuth": "src/"
         }
     }
 }

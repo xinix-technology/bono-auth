@@ -1,6 +1,6 @@
 <?php
 
-namespace ROH\BonoAUth\Driver;
+namespace Xinix\BonoAUth\Driver;
 
 use Bono\Helper\URL;
 

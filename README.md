@@ -9,7 +9,7 @@ To use bono-auth you have to setup bono using bono-auth middleware in config.php
 
 ```php
 'bono.middlewares' => array(
-  '\\ROH\\BonoAuth\\Middleware\\AuthMiddleware' => array(
+  '\\Xinix\\BonoAuth\\Middleware\\AuthMiddleware' => array(
     ...
   ),
 ),
@@ -18,22 +18,22 @@ To use bono-auth you have to setup bono using bono-auth middleware in config.php
 
 bono-auth has two drivers to use, each will have distinct configuration:
 
-## ROH\BonoAuth\Driver\NormAuth
+## Xinix\BonoAuth\Driver\NormAuth
 
 ```php
 'bono.middlewares' => array(
-  '\\ROH\\BonoAuth\\Middleware\\AuthMiddleware' => array(
-    'driver' => '\\ROH\\BonoAuth\\Driver\\NormAuth'
+  '\\Xinix\\BonoAuth\\Middleware\\AuthMiddleware' => array(
+    'driver' => '\\Xinix\\BonoAuth\\Driver\\NormAuth'
   ),
 ),
 ```
 
-## ROH\BonoAuth\Driver\OAuth
+## Xinix\BonoAuth\Driver\OAuth
 
 ```php
 'bono.middlewares' => array(
-  '\\ROH\\BonoAuth\\Middleware\\AuthMiddleware' => array(
-    'driver' => '\\ROH\\BonoAuth\\Driver\\OAuth',
+  '\\Xinix\\BonoAuth\\Middleware\\AuthMiddleware' => array(
+    'driver' => '\\Xinix\\BonoAuth\\Driver\\OAuth',
     'debug' => true, // enable or disable debug
     'baseUrl' => 'http://to.your.oauth.provider',
     'authUrl' => '/oauth/auth', // URI to access auth
