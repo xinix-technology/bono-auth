@@ -1,10 +1,10 @@
 <?php
 
-namespace ROH\BonoAuth\Driver;
+namespace Xinix\BonoAuth\Driver;
 
 use Bono\App;
 use Guzzle\Service\Client as GuzzleClient;
-use ROH\BonoAuth\RequestWrapper;
+use Xinix\BonoAuth\RequestWrapper;
 use Norm\Filter\FilterException;
 use Exception;
 use Slim\Exception\Stop;
