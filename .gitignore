@@ -1,3 +1,5 @@
 /vendor/
 /*.sublime-*
 /composer.lock
+/coverage
+/node_modules

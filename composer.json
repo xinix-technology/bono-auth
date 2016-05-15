@@ -9,12 +9,14 @@
         }
     ],
     "require": {
-        "slim/slim": "2.3.*",
-        "guzzle/guzzle": "~3.8.1"
+        "xinix-technology/bono": "~2.2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
     },
     "autoload": {
-        "psr-0": {
-            "Xinix\\BonoAuth": "src/"
+        "psr-4": {
+            "Xinix\\BonoAuth\\": "src/"
         }
     }
 }
