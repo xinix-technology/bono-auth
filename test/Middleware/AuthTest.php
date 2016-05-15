@@ -88,9 +88,9 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $middleware = new Auth($this->app, [function() {}]);
         $middleware->clearRules();
         $middleware->addRule([ 'allow', '/foo', '*' ]);
-        $middleware->addRule([ 'allow', '/foo/*', 'user:*' ]);
+        $middleware->addRule([ 'allow', '/fooz/*', 'user:*' ]);
         $middleware->addRule([ 'allow', '/bar', '*' ]);
-        $middleware->addRule([ 'allow', '/bar/*', 'user:foo' ]);
+        $middleware->addRule([ 'allow', '/barz/*', 'user:foo' ]);
         $middleware->addRule([ 'allow', '/foox/**', '*' ]);
         $middleware->addRule([ 'reject' ]);
 
@@ -98,13 +98,17 @@ class AuthTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(true, $middleware->authorize($context, '/foo'));
         $this->assertEquals(true, $middleware->authorize($context, '/bar'));
         $this->assertEquals(false, $middleware->authorize($context, '/baz'));
-        $this->assertEquals(false, $middleware->authorize($context, '/foo/xxx'));
+        $this->assertEquals(false, $middleware->authorize($context, '/fooz'));
+        $this->assertEquals(false, $middleware->authorize($context, '/fooz/xxx'));
         $context['@session.data'] = ['auth' => ['$user' => ['foo']]];
-        $this->assertEquals(true, $middleware->authorize($context, '/foo/xxx'));
-        $this->assertEquals(true, $middleware->authorize($context, '/bar/xxx'));
+        $this->assertEquals(true, $middleware->authorize($context, '/fooz'));
+        $this->assertEquals(true, $middleware->authorize($context, '/fooz/xxx'));
+        $this->assertEquals(true, $middleware->authorize($context, '/barz/xxx'));
         $context['@session.data'] = ['auth' => ['$user' => ['bar']]];
-        $this->assertEquals(false, $middleware->authorize($context, '/bar/xxx'));
+        $this->assertEquals(false, $middleware->authorize($context, '/barz/xxx'));
 
+        $this->assertEquals(true, $middleware->authorize($context, (new Uri())->withPath('/foox')));
+        $this->assertEquals(true, $middleware->authorize($context, (new Uri())->withPath('/foox/foo')));
         $this->assertEquals(true, $middleware->authorize($context, (new Uri())->withPath('/foox/foo/bar')));
 
         try {

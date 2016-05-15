@@ -103,15 +103,12 @@ class Auth
             $index = 0;
             $result = true;
 
-
             foreach ($evaluator as $token) {
-                if (isset($segments[$index])) {
-                    if ('**' === $token) {
-                        break;
-                    } elseif ('*' === $token || $token === $segments[$index]) {
-                        $index++;
-                        continue;
-                    }
+                if ('**' === $token) {
+                    break;
+                } elseif ('*' === $token || (isset($segments[$index]) && $token === $segments[$index])) {
+                    $index++;
+                    continue;
                 }
 
                 $result = false;
