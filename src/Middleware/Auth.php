@@ -72,8 +72,8 @@ class Auth
             if ($this->isAuthenticate($context)) {
                 if (in_array('*', $values)) {
                     return true;
-                } elseif (isset($context['@session.data']['auth']['$'.$type])) {
-                    $accepts = $context['@session.data']['auth']['$'.$type];
+                } elseif (isset($context['@session.data']['auth'][$type])) {
+                    $accepts = $context['@session.data']['auth'][$type];
                     foreach ($values as $key => $value) {
                         if (is_array($accepts) && in_array($value, $accepts)) {
                             return true;
@@ -168,7 +168,8 @@ class Auth
 
     public function __invoke(Context $context, callable $next)
     {
-        $context->depends('@renderer', '@session');
+        $context->depends('@session');
+        // $context->depends('@renderer', '@session');
 
         $context['@auth'] = $this;
         // $context['@renderer']->addTemplatePath(__DIR__.'/../../templates');
@@ -227,9 +228,6 @@ class Auth
         foreach ($this->authenticators as $authenticator) {
             $result = $authenticator($context);
             if (null !== $result) {
-                if (false !== $result) {
-                    $context->call('@session', 'set', 'auth', $result);
-                }
                 return $result;
             }
         }
@@ -249,6 +247,9 @@ class Auth
                     'message' => 'Username or password not match'
                 ]);
             } else {
+                $context->call('@session', 'reset', isset($form['keep']));
+                $context->call('@session', 'set', 'auth', $credential);
+
                 $context->call('@notification', 'notify', [
                     'level' => 'info',
                     'message' => 'Welcome',
@@ -271,7 +272,7 @@ class Auth
 
     public function logout(Context $context)
     {
-        $context['@session']->reset($context);
+        $context->call('@session', 'reset');
 
         $context->call('@notification', 'notify', [
             'level' => 'info',
