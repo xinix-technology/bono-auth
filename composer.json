@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "slim/slim": "2.3.*",
+        "slim/slim": "2.6.*",
         "guzzle/guzzle": "~3.8.1"
     },
     "autoload": {
